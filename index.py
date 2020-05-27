@@ -28,6 +28,51 @@ def conexionBBDD():
         
         messagebox.showwarning("¡Atención!", "La base de datos ya existe")
  
+def salirApp():
+
+    respuesta= messagebox.askquestion("Salir", "¿Deseas salir de la aplicación?")
+
+    if respuesta=="yes":
+        raiz.destroy()
+
+def borraCampos():
+    
+    miID.set("")
+    miNombre.set("")
+    miApellido.set("")
+    miPass.set("")
+    miDireccion.set("")
+    comentarios.delete(1.0,END)
+
+def insertaDato():
+    
+    cnx= sqlite3.connect("Usuario")
+    miCursor= cnx.cursor()
+
+    miCursor.execute("INSERT INTO DATOS_USUARIOS VALUES(NULL,'" + miNombre.get() +
+    "','" + miPass.get() +
+    "','" + miApellido.get() +
+    "','" + miDireccion.get() +
+    "','" + comentarios.get("1.0", END) + "')")
+
+    cnx.commit()
+    messagebox.showinfo("BBDD", "Registro insertado con éxito")
+
+
+
+def leeDatos():
+    pass
+
+def refrescaDatos():
+    pass
+
+def eliminaDatos():
+    pass
+
+def ayuda():
+    pass
+
+
 
 
 
@@ -40,19 +85,19 @@ raiz.config(menu=barraMenu, width=300, height=300)
 
 dbMenu=Menu(barraMenu, tearoff=0)
 dbMenu.add_command(label="Conectar", command=conexionBBDD)
-dbMenu.add_command(label="Salir")
+dbMenu.add_command(label="Salir", command=salirApp)
 
 borrarMenu=Menu(barraMenu, tearoff=0)
-borrarMenu.add_command(label="Borrar campos")
+borrarMenu.add_command(label="Borrar campos", command=borraCampos)
 
 menuCRUD=Menu(barraMenu, tearoff=0)
-menuCRUD.add_command(label="Crear")
-menuCRUD.add_command(label="Leer")
-menuCRUD.add_command(label="Actualizar")
-menuCRUD.add_command(label="Borrar")
+menuCRUD.add_command(label="Crear", command=insertaDato)
+menuCRUD.add_command(label="Leer", command=leeDatos)
+menuCRUD.add_command(label="Actualizar", command=refrescaDatos)
+menuCRUD.add_command(label="Borrar", command=eliminaDatos)
 
 ayudaMenu=Menu(barraMenu, tearoff=0)
-ayudaMenu.add_command(label="Acerca de...")
+ayudaMenu.add_command(label="Acerca de...", command=ayuda)
 
 barraMenu.add_cascade(label="BBDD", menu=dbMenu)
 barraMenu.add_cascade(label="Borrar", menu=borrarMenu)
@@ -64,21 +109,29 @@ barraMenu.add_cascade(label="Ayuda", menu=ayudaMenu)
 miFrame= Frame(raiz)
 miFrame.pack()
 
-cuadroID= Entry(miFrame)
+miID= StringVar()
+miNombre= StringVar()
+miApellido= StringVar()
+miPass= StringVar()
+miDireccion= StringVar()
+
+cuadroID= Entry(miFrame, textvariable= miID)
 cuadroID.grid(row=0, column=1, padx=10, pady=10)
+cuadroID.config(fg="green")
 
-cuadroNombre= Entry(miFrame)
+cuadroNombre= Entry(miFrame, textvariable=miNombre)
 cuadroNombre.grid(row=1, column=1, padx=10, pady=10)
-cuadroNombre.config(fg="red", justify="right")
+cuadroNombre.config(fg="blue", justify="center")
 
-cuadroPass= Entry(miFrame)
-cuadroPass.grid(row=2, column=1, padx=10, pady=10)
-cuadroPass.config(fg="red", justify="right", show="?")
+cuadroApellido= Entry(miFrame, textvariable=miApellido)
+cuadroApellido.grid(row=2, column=1, padx=10, pady=10)
+cuadroApellido.config(fg="blue", justify="center")
 
-cuadroApellido= Entry(miFrame)
-cuadroApellido.grid(row=3, column=1, padx=10, pady=10)
+cuadroPass= Entry(miFrame, textvariable=miPass)
+cuadroPass.grid(row=3, column=1, padx=10, pady=10)
+cuadroPass.config(fg="red", justify="center", show="*")
 
-cuadroAdress= Entry(miFrame)
+cuadroAdress= Entry(miFrame, textvariable=miDireccion)
 cuadroAdress.grid(row=4, column=1, padx=10, pady=10)
 
 comentarios= Text(miFrame, width=16, height=5)
