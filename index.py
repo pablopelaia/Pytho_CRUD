@@ -38,11 +38,17 @@ def salirApp():
 def borraCampos():
     
     miID.set("")
+    limpiar()
+
+def limpiar():
+
     miNombre.set("")
     miApellido.set("")
     miPass.set("")
     miDireccion.set("")
     comentarios.delete(1.0,END)
+
+
 
 def insertaDato():
     
@@ -65,6 +71,8 @@ def leeDatos():
     if miID.get()=="": 
         messagebox.showwarning("Dato requerido", "debe ingresar ID")
         return 0
+    
+    limpiar()
 
     cnx= sqlite3.connect("Usuario")    
     miCursor= cnx.cursor()
@@ -86,19 +94,43 @@ def leeDatos():
         
     cnx.commit()
 
-    
-
-
-
-
-
-
-
 def refrescaDatos():
-    pass
+    
+    cnx= sqlite3.connect("Usuario")    
+    miCursor= cnx.cursor()
+
+    datosFormulario= [miNombre.get(), miApellido.get(), miPass.get(), miDireccion.get(), comentarios.get('1.0', END)]
+        
+    for dato in datosFormulario:
+        print(dato)
+
+    miCursor.execute(
+        "UPDATE DATO_USUARIOS SET NOMBRE_USUARIO=?, APELLIDO=?, CONTRASENA=?, DIRECCION=?, COMENTARIOS=?" + "WHERE ID=" + miID.get(), datosFormulario)
+        
+    cnx.commit()
+    messagebox.showinfo("BBDD", "Registro actualizado con éxito")
+    borraCampos()
 
 def eliminaDatos():
-    pass
+    
+    if miID.get()=="": 
+        messagebox.showwarning("Dato requerido", "debe ingresar ID")
+        return 0
+    
+    leeDatos()
+
+    respuesta= messagebox.askokcancel("Borrar usuario", "¿Está seguro que quiere borrar el usuario")
+
+    if respuesta==False: return 0
+    
+    cnx= sqlite3.connect("Usuario")    
+    miCursor= cnx.cursor()
+
+    miCursor.execute("DELETE FROM DATO_USUARIOS WHERE ID=" + miID.get())
+
+    cnx.commit()
+    borraCampos()
+    messagebox.showinfo("Borrado", "Su usuario ha sido borrado")
 
 def ayuda():
     pass
