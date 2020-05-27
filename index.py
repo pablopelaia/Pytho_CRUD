@@ -14,9 +14,9 @@ def conexionBBDD():
 
         miCursor.execute('''CREATE TABLE DATO_USUARIOS (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                NOMBRE_USUARIO VARCHAR(50),
-                CONTRASENA VARCHAR(50),
+                NOMBRE_USUARIO VARCHAR(50),                
                 APELLIDO VARCHAR(10),
+                CONTRASENA VARCHAR(50),
                 DIRECCION VARCHAR(50),
                 COMENTARIOS VARCHAR(100) 
             )
@@ -46,22 +46,53 @@ def borraCampos():
 
 def insertaDato():
     
-    cnx= sqlite3.connect("Usuario")
+    cnx= sqlite3.connect("Usuario")    
     miCursor= cnx.cursor()
 
-    miCursor.execute("INSERT INTO DATOS_USUARIOS VALUES(NULL,'" + miNombre.get() +
-    "','" + miPass.get() +
-    "','" + miApellido.get() +
-    "','" + miDireccion.get() +
-    "','" + comentarios.get("1.0", END) + "')")
+    datosFormulario= [miNombre.get(), miApellido.get(), miPass.get(), miDireccion.get(), comentarios.get('1.0', END)]
+        
+    for dato in datosFormulario:
+        print(dato)
 
+    miCursor.execute("INSERT INTO DATO_USUARIOS VALUES (NULL, ?, ?, ?, ?, ?)", datosFormulario)        
+        
     cnx.commit()
     messagebox.showinfo("BBDD", "Registro insertado con éxito")
-
-
+    borraCampos()
 
 def leeDatos():
-    pass
+
+    if miID.get()=="": 
+        messagebox.showwarning("Dato requerido", "debe ingresar ID")
+        return 0
+
+    cnx= sqlite3.connect("Usuario")    
+    miCursor= cnx.cursor()
+
+    miCursor.execute("SELECT * FROM DATO_USUARIOS WHERE ID=" + miID.get())
+
+    usuarioBuscado= miCursor.fetchall()
+        
+    for usuario in usuarioBuscado:
+
+        print(usuario)
+        
+        miID.set(usuario[0])
+        miNombre.set(usuario[1])
+        miApellido.set(usuario[2])
+        miPass.set(usuario[3])
+        miDireccion.set(usuario[4])
+        comentarios.insert(1.0, usuario[5])
+        
+    cnx.commit()
+
+    
+
+
+
+
+
+
 
 def refrescaDatos():
     pass
@@ -71,10 +102,6 @@ def eliminaDatos():
 
 def ayuda():
     pass
-
-
-
-
 
 raiz= Tk()
 
@@ -167,16 +194,16 @@ comentariosLabel.grid(row=5, column=0, sticky="e", padx=10, pady=10)
 botonera= Frame(raiz)
 botonera.pack()
 
-btnCrear= Button(botonera, text="Crear")
+btnCrear= Button(botonera, text="Create", command=insertaDato)
 btnCrear.grid(row=0, column=0, sticky="e", padx=10, pady=10)
 
-btnLeer= Button(botonera, text="Leer")
+btnLeer= Button(botonera, text="Read", command=leeDatos)
 btnLeer.grid(row=0, column=1, sticky="e", padx=10, pady=10)
 
-btnActualizar= Button(botonera, text="Actualizar")
+btnActualizar= Button(botonera, text="Up date", command=refrescaDatos)
 btnActualizar.grid(row=0, column=2, sticky="e", padx=10, pady=10)
 
-btnBorrar= Button(botonera, text="Borrar")
+btnBorrar= Button(botonera, text="Delete", command=eliminaDatos)
 btnBorrar.grid(row=0, column=3, sticky="e", padx=10, pady=10)
 
 
