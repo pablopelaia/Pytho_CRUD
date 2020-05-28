@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 import sqlite3
 
 # Funciones----------------------------------------------------------------------------
@@ -27,7 +28,8 @@ def conexionBBDD():
     except:
         
         messagebox.showwarning("¡Atención!", "La base de datos ya existe")
- 
+
+
 def salirApp():
 
     respuesta= messagebox.askquestion("Salir", "¿Deseas salir de la aplicación?")
@@ -35,10 +37,12 @@ def salirApp():
     if respuesta=="yes":
         raiz.destroy()
 
+
 def borraCampos():
     
     miID.set("")
     limpiar()
+
 
 def limpiar():
 
@@ -47,7 +51,6 @@ def limpiar():
     miPass.set("")
     miDireccion.set("")
     comentarios.delete(1.0,END)
-
 
 
 def insertaDato():
@@ -65,6 +68,8 @@ def insertaDato():
     cnx.commit()
     messagebox.showinfo("BBDD", "Registro insertado con éxito")
     borraCampos()
+    dibujaTabla(arbol)
+
 
 def leeDatos():
 
@@ -94,6 +99,7 @@ def leeDatos():
         
     cnx.commit()
 
+
 def refrescaDatos():
     
     cnx= sqlite3.connect("Usuario")    
@@ -110,6 +116,8 @@ def refrescaDatos():
     cnx.commit()
     messagebox.showinfo("BBDD", "Registro actualizado con éxito")
     borraCampos()
+    dibujaTabla(arbol)
+
 
 def eliminaDatos():
     
@@ -130,10 +138,33 @@ def eliminaDatos():
 
     cnx.commit()
     borraCampos()
+    dibujaTabla(arbol)
     messagebox.showinfo("Borrado", "Su usuario ha sido borrado")
 
-def ayuda():
-    pass
+
+def dibujaTabla(self):
+
+    elementos= self.get_children()
+
+    for elemento in elementos:
+
+        self.delete(elemento)
+    
+    cnx= sqlite3.connect("Usuario")    
+    miCursor= cnx.cursor()
+    
+    miCursor.execute("SELECT * FROM DATO_USUARIOS ORDER BY ID DESC")
+    db= miCursor.fetchall()
+
+    for fila in db:
+
+        self.insert('', 0, text=fila[1], values= fila[2])
+
+
+
+    cnx.commit()
+
+
 
 raiz= Tk()
 
@@ -141,27 +172,14 @@ raiz= Tk()
 
 barraMenu= Menu(raiz)
 raiz.config(menu=barraMenu, width=300, height=300)
+raiz.title("CRUD")
 
 dbMenu=Menu(barraMenu, tearoff=0)
 dbMenu.add_command(label="Conectar", command=conexionBBDD)
+dbMenu.add_command(label="Borrar campos", command=borraCampos)
 dbMenu.add_command(label="Salir", command=salirApp)
 
-borrarMenu=Menu(barraMenu, tearoff=0)
-borrarMenu.add_command(label="Borrar campos", command=borraCampos)
-
-menuCRUD=Menu(barraMenu, tearoff=0)
-menuCRUD.add_command(label="Crear", command=insertaDato)
-menuCRUD.add_command(label="Leer", command=leeDatos)
-menuCRUD.add_command(label="Actualizar", command=refrescaDatos)
-menuCRUD.add_command(label="Borrar", command=eliminaDatos)
-
-ayudaMenu=Menu(barraMenu, tearoff=0)
-ayudaMenu.add_command(label="Acerca de...", command=ayuda)
-
-barraMenu.add_cascade(label="BBDD", menu=dbMenu)
-barraMenu.add_cascade(label="Borrar", menu=borrarMenu)
-barraMenu.add_cascade(label="CRUD", men=menuCRUD)
-barraMenu.add_cascade(label="Ayuda", menu=ayudaMenu)
+barraMenu.add_cascade(label="Opciones", menu=dbMenu)
 
 # Comienzo de campos-----------------------------------------------------------------------
 
@@ -181,6 +199,7 @@ cuadroID.config(fg="green")
 cuadroNombre= Entry(miFrame, textvariable=miNombre)
 cuadroNombre.grid(row=1, column=1, padx=10, pady=10)
 cuadroNombre.config(fg="blue", justify="center")
+cuadroNombre.focus()
 
 cuadroApellido= Entry(miFrame, textvariable=miApellido)
 cuadroApellido.grid(row=2, column=1, padx=10, pady=10)
@@ -238,5 +257,15 @@ btnActualizar.grid(row=0, column=2, sticky="e", padx=10, pady=10)
 btnBorrar= Button(botonera, text="Delete", command=eliminaDatos)
 btnBorrar.grid(row=0, column=3, sticky="e", padx=10, pady=10)
 
+# Tabla-----------------------------------------------------------------------------
+
+contenedor= Frame(raiz)
+contenedor.pack()
+ 
+arbol= ttk.Treeview(contenedor, column=0, height=10, columns=1)
+arbol.pack()
+arbol.heading("#0", text='Nombre', anchor=CENTER)
+arbol.heading("#1", text='Apellido', anchor=CENTER)
+dibujaTabla(arbol)
 
 raiz.mainloop()
